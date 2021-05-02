@@ -4,6 +4,9 @@ import (
 	"flag"
 	"fmt"
 	"log"
+	"os"
+	"os/signal"
+	"syscall"
 	"time"
 
 	"github.com/distatus/battery"
@@ -52,6 +55,14 @@ func checkBatteries() {
 	}
 }
 
+func startCheckingBatteries() {
+	ticker := time.NewTicker(time.Duration(minutesBetweenCheck) * time.Minute)
+
+	for range ticker.C {
+		go checkBatteries()
+	}
+}
+
 func init() {
 	flag.Float64Var(&batteryThreshold, "t", 30.0, "Battery threshold. Battery below this level (and battery in discharging state) will cause sending notification.")
 	flag.IntVar(&minutesBetweenCheck, "m", 1, "Checking interval in minutes.")
@@ -59,9 +70,11 @@ func init() {
 }
 
 func main() {
-	ticker := time.NewTicker(time.Duration(minutesBetweenCheck) * time.Minute)
+	go startCheckingBatteries()
 
-	for range ticker.C {
-		go checkBatteries()
-	}
+	termChan := make(chan os.Signal)
+	signal.Notify(termChan, syscall.SIGINT, syscall.SIGTERM)
+	<-termChan
+
+	log.Print("Battery notifier terminated.")
 }
