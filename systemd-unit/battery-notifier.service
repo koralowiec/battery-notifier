@@ -1,0 +1,8 @@
+[Unit]
+Description=Program that checks battery level and if one is below the threshold sends a notification
+
+[Service]
+ExecStart=/tmp/battery-notifier
+
+[Install]
+WantedBy=default.target
