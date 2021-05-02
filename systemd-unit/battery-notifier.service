@@ -2,7 +2,7 @@
 Description=Program that checks battery level and if one is below the threshold sends a notification
 
 [Service]
-ExecStart=/tmp/battery-notifier
+ExecStart=/home/arek/go/bin/battery-notifier -t 35 -m 2
 
 [Install]
 WantedBy=default.target
