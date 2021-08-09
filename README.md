@@ -12,7 +12,7 @@ Yeah, I know 94% is not low, but... I've set the threshold to 100% so I could ca
 
 ---
 
-Using those packages:
+Using these packages:
 - [distatus/battery](https://github.com/distatus/battery) for getting battery info 
 - [keybase/go-notifier](https://github.com/keybase/go-notifier) for sending a notification
 
@@ -23,34 +23,23 @@ Using those packages:
 go get gitlab.com/koralowiec/battery-notifier
 ```
 
-## Running as a systemd unit
+or:
 
-Clone the repo:
-
-```
+```bash
 git clone https://gitlab.com/koralowiec/battery-notifier.git
 cd battery-notifier
+go build main.go
+mv main battery-notifier
 ```
 
-Open the service file with a text editor:
+## Running via cron
 
-```
-vim ./systemd-unit/battery-notifier.service
-```
-
-Change the unit file (the line below):
- - replace /home/arek/go with your $GOPATH
- - (optional) change passed arguments (check `battery-notifier -h`)
-
-```ini
-ExecStart=/home/arek/go/bin/battery-notifier -t 35 -m 2
+```bash
+crontab -e
 ```
 
-Copy the file to user's units, reload the configuration, start and enable the service:
+To run every minute add something like the line below (remember to adjust path to the binary, optionally you may want to change the threshold via `-t`):
 
 ```
-cp ./systemd-unit/battery-notifier.service ~/.config/systemd/user/battery-notifier.service
-systemctl daemon-reload --user
-systemctl --user start battery-notifier.service
-systemctl --user enable battery-notifier.service
+*/1 * * * * /home/arek/horsing-around/battery-notifier/battery-notifier -t 40
 ```
