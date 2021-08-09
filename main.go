@@ -4,7 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"log"
-	"time"
+	"os"
 
 	"github.com/distatus/battery"
 	"github.com/keybase/go-notifier"
@@ -15,6 +15,9 @@ const notificationMsgTemplate = "Battery at %.2f%%"
 
 var batteryThreshold float64
 var minutesBetweenCheck int
+
+const envKey = "XDG_RUNTIME_DIR"
+const envValueTemplate = "/run/user/%d"
 
 func sendNotification(currentPercent float64) {
 	message := fmt.Sprintf(notificationMsgTemplate, currentPercent)
@@ -52,11 +55,11 @@ func checkBatteries() {
 	}
 }
 
-func startCheckingBatteries() {
-	ticker := time.NewTicker(time.Duration(minutesBetweenCheck) * time.Minute)
-
-	for range ticker.C {
-		go checkBatteries()
+func setEnv() {
+	uid := os.Geteuid()
+	value := fmt.Sprintf(envValueTemplate, uid)
+	if err := os.Setenv(envKey, value); err != nil {
+		log.Fatalf("Could not set the environment variable: %s\n", envKey)
 	}
 }
 
@@ -66,5 +69,6 @@ func init() {
 }
 
 func main() {
+	setEnv()
 	checkBatteries()
 }
